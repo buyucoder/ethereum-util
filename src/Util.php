@@ -239,9 +239,9 @@ class Util
      * @param string $value
      * @return string
      */
-    public static function sha3(string $value)
+    public static function sha3($value)
     {
-        $hash = Keccak::hash($value, 256);
+        $hash = Keccak::hash(self::toString($value), 256);
 
         if ($hash === self::SHA3_NULL_HASH) {
             return null;
@@ -254,7 +254,7 @@ class Util
      * @return string|null
      * @throws \Exception
      */
-    public static function keccak256(string $value)
+    public static function keccak256($value)
     {
         return self::sha3($value);
     }
