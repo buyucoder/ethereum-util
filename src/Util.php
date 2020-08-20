@@ -239,14 +239,24 @@ class Util
      * @param string $value
      * @return string
      */
-    public function sha3(string $value)
+    public static function sha3(string $value)
     {
         $hash = Keccak::hash($value, 256);
 
-        if ($hash === $this::SHA3_NULL_HASH) {
+        if ($hash === self::SHA3_NULL_HASH) {
             return null;
         }
         return $hash;
+    }
+
+    /**
+     * @param string $value
+     * @return string|null
+     * @throws \Exception
+     */
+    public static function keccak256(string $value)
+    {
+        return self::sha3($value);
     }
 
     /**
@@ -449,20 +459,20 @@ class Util
      * @param string $publicKey
      * @return string
      */
-    public function publicKeyToAddress($publicKey)
+    public static function publicKeyToAddress($publicKey)
     {
         if (!is_string($publicKey)) {
             throw new InvalidArgumentException('The publicKey to publicKeyToAddress function must be string.');
         }
-        if ($this->isHex($publicKey) === false) {
+        if (self::isHex($publicKey) === false) {
             throw new InvalidArgumentException('Invalid public key format.');
         }
-        $publicKey = $this->stripZero($publicKey);
+        $publicKey = self::stripZero($publicKey);
 
         if (strlen($publicKey) !== 130) {
             throw new InvalidArgumentException('Invalid public key length.');
         }
-        return '0x' . substr($this->sha3(substr(hex2bin($publicKey), 1)), 24);
+        return '0x' . substr(self::sha3(substr(hex2bin($publicKey), 1)), 24);
     }
 
     /**
@@ -471,15 +481,15 @@ class Util
      * @param string $privateKey
      * @return string
      */
-    public function privateKeyToPublicKey($privateKey)
+    public static function privateKeyToPublicKey($privateKey)
     {
         if (!is_string($privateKey)) {
             throw new InvalidArgumentException('The privateKey to privateKeyToPublicKey function must be string.');
         }
-        if ($this->isHex($privateKey) === false) {
+        if (self::isHex($privateKey) === false) {
             throw new InvalidArgumentException('Invalid private key format.');
         }
-        $privateKey = $this->stripZero($privateKey);
+        $privateKey = self::stripZero($privateKey);
 
         if (strlen($privateKey) !== 64) {
             throw new InvalidArgumentException('Invalid private key length.');
@@ -499,7 +509,7 @@ class Util
      * @param int $v
      * @return string
      */
-    public function recoverPublicKey($hash, $r, $s, $v)
+    public static function recoverPublicKey($hash, $r, $s, $v)
     {
         if (!is_string($hash)) {
             throw new InvalidArgumentException('The hash to recoverPublicKey function must be string.');
@@ -513,16 +523,16 @@ class Util
         if (!is_int($v)) {
             throw new InvalidArgumentException('The hash to recoverPublicKey function must be int.');
         }
-        if ($this->isHex($hash) === false) {
+        if (self::isHex($hash) === false) {
             throw new InvalidArgumentException('Invalid hash format.');
         }
-        $hash = $this->stripZero($hash);
+        $hash = self::stripZero($hash);
 
-        if ($this->isHex($r) === false || $this->isHex($s) === false) {
+        if (self::isHex($r) === false || self::isHex($s) === false) {
             throw new InvalidArgumentException('Invalid signature format.');
         }
-        $r = $this->stripZero($r);
-        $s = $this->stripZero($s);
+        $r = self::stripZero($r);
+        $s = self::stripZero($s);
 
         if (strlen($r) !== 64 || strlen($s) !== 64) {
             throw new InvalidArgumentException('Invalid signature length.');
@@ -543,7 +553,7 @@ class Util
      * @param string $message
      * @return \Elliptic\EC\Signature
      */
-    public function ecsign($privateKey, $message)
+    public static function ecsign($privateKey, $message)
     {
         if (!is_string($privateKey)) {
             throw new InvalidArgumentException('The privateKey to ecsign function must be string.');
@@ -551,10 +561,10 @@ class Util
         if (!is_string($message)) {
             throw new InvalidArgumentException('The message to ecsign function must be string.');
         }
-        if ($this->isHex($privateKey) === false) {
+        if (self::isHex($privateKey) === false) {
             throw new InvalidArgumentException('Invalid private key format.');
         }
-        $privateKeyLength = strlen($this->stripZero($privateKey));
+        $privateKeyLength = strlen(self::stripZero($privateKey));
 
         if ($privateKeyLength % 2 !== 0 && $privateKeyLength !== 64) {
             throw new InvalidArgumentException('Private key length was wrong.');
@@ -577,12 +587,12 @@ class Util
      * @param string $message
      * @return string
      */
-    public function hashPersonalMessage($message)
+    public static function hashPersonalMessage($message)
     {
         if (!is_string($message)) {
             throw new InvalidArgumentException('The message to hashPersonalMessage function must be string.');
         }
         $prefix = sprintf("\x19Ethereum Signed Message:\n%d", mb_strlen($message));
-        return $this->sha3($prefix . $message);
+        return self::sha3($prefix . $message);
     }
 }
